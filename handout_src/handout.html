@@ -7,7 +7,7 @@
   @page { size: A4; margin: 18mm 17mm 18mm 17mm;
     @bottom-center { content: counter(page); font: 9pt 'Malgun Gothic', sans-serif; color: #8a8984; }
     @top-right { content: "타이타닉 데이터 분석 교안"; font: 8pt 'Malgun Gothic', sans-serif; color: #8a8984; } }
-  @page :first { @bottom-center { content: none; } @top-right { content: none; } }
+  @page :first { margin: 0; @bottom-center { content: none; } @top-right { content: none; } }
   :root { --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984; --line:#e2e1dc; --blue:#2a78d6; --blue-bg:#eef4fc;
           --orange:#eb6834; --orange-bg:#fdf1ec; --green:#1b8f63; --green-bg:#ecf8f2; --code-bg:#f6f6f4; }
   * { box-sizing: border-box; }
@@ -42,11 +42,22 @@
   figcaption { font-size:8.8pt; color:var(--muted); margin-top:2pt; }
   .toc { columns:2; column-gap:24pt; font-size:10pt; }
   .toc div { break-inside:avoid; margin:0 0 3pt; } .toc .sub { padding-left:14pt; color:var(--ink2); font-size:9.3pt; }
-  .cover { height:250mm; display:flex; flex-direction:column; justify-content:center; padding:0 6mm; }
-  .cover .kicker { color:var(--blue); font-weight:bold; letter-spacing:1px; }
-  .cover h1 { font-size:32pt; border:none; break-before:auto; margin:6pt 0; }
-  .cover .q { font-size:15pt; color:var(--ink2); margin-bottom:28pt; }
-  .cover table { width:auto; min-width:70%; font-size:10pt; }
+  .cover { width:210mm; height:296mm; overflow:hidden; display:flex; flex-direction:column;
+           -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .cover .band { background:#1f3a8a; color:#fff; height:122mm; padding:0 22mm; display:flex; flex-direction:column; justify-content:center; }
+  .cover .band .kicker { font-size:12.5pt; opacity:.92; margin-bottom:16mm; }
+  .cover .band h1 { font-size:36pt; line-height:1.15; color:#fff; border:none; break-before:auto; margin:0 0 3mm; padding:0; letter-spacing:-.5px; }
+  .cover .band .sub { font-size:18pt; font-weight:bold; margin-bottom:9mm; }
+  .cover .band .topics { font-size:10.5pt; opacity:.9; }
+  .cover .stripe { height:4mm; background:var(--orange); }
+  .cover .body { flex:1; padding:18mm 22mm 14mm; display:flex; flex-direction:column; }
+  .cover .body .q { font-size:14pt; color:#1f3a8a; font-weight:bold; margin-bottom:9mm; }
+  .cover .body h3 { font-size:11.5pt; margin:0 0 3mm; }
+  .cover .body ul { margin:0 0 8mm; padding-left:6mm; font-size:10.3pt; } .cover .body li { margin:1.4mm 0; }
+  .cover .meta { display:grid; grid-template-columns:auto 1fr; gap:1.6mm 6mm; font-size:9.3pt; color:var(--ink2);
+                 border-top:1px solid var(--line); padding-top:5mm; }
+  .cover .meta b { color:var(--ink); }
+  .cover .foot { margin-top:auto; font-size:8.8pt; color:var(--muted); }
   .insight { border:1px solid var(--line); border-radius:8px; padding:10pt 14pt 4pt; margin:10pt 0 14pt; }
   .insight h2 { margin-top:0; } .insight h2 .num { color:var(--blue); }
   .insight .so { background:var(--blue-bg); border-radius:4px; padding:5pt 10pt; margin:6pt 0 8pt; }
@@ -62,18 +73,32 @@
 
 <!-- ───────────── 표지 ───────────── -->
 <section class="cover">
-  <div class="kicker">NumPy · Pandas 실전 프로젝트</div>
-  <h1>타이타닉 데이터 분석</h1>
-  <div class="q">"누가 살아남았을까? 그리고 그 이유는?"</div>
-  <table>
-    <tr><th>대상</th><td>넘파이·판다스 기초 수업을 마친 수강생</td></tr>
-    <tr><th>수업 시간</th><td>4교시 (50분 × 4, 약 4시간)</td></tr>
-    <tr><th>데이터</th><td>titanic_kaggle.csv (Kaggle 원본, 승객 891명, 12개 열)<br>— 코드에서 깃허브 URL로 바로 내려받음</td></tr>
-    <tr><th>예제 코드</th><td>03_예제_타이타닉_데이터분석 (.py / .ipynb)</td></tr>
-    <tr><th>실습 문제</th><td>04_실습문제_타이타닉 (.py / .ipynb) — 정답은 부록 A</td></tr>
-    <tr><th>필요 패키지</th><td>numpy, pandas, matplotlib, seaborn</td></tr>
-    <tr><th>저장소</th><td>github.com/sinaboro/Titanic_Data_Analysis</td></tr>
-  </table>
+  <div class="band">
+    <div class="kicker">NumPy · Pandas 실전 프로젝트 &nbsp;|&nbsp; 데이터 분석 교안</div>
+    <h1>Titanic Data Analysis</h1>
+    <div class="sub">타이타닉 데이터 분석 교안</div>
+    <div class="topics">데이터 탐색 · 결측치 처리 · groupby · pivot_table · 파생 변수 · 시각화 · 규칙 기반 예측 · 인사이트</div>
+  </div>
+  <div class="stripe"></div>
+  <div class="body">
+    <div class="q">"누가 살아남았을까? 그리고 그 이유는?"</div>
+    <h3>이 교안의 구성</h3>
+    <ul>
+      <li>CSV 불러오기부터 예측까지, 데이터 분석 전체 흐름을 9개 장으로 정리</li>
+      <li>각 장별 예제 코드 · 실행 결과 · 생각해보기와 해설</li>
+      <li>타이타닉 데이터에서 찾은 인사이트 5가지 (10장)</li>
+      <li>이 학습을 바탕으로 한 데이터 분석 조언 7가지 (11장)</li>
+      <li>부록: 실습문제 15개 정답, 자주 묻는 질문</li>
+    </ul>
+    <div class="meta">
+      <b>대상</b><span>넘파이·판다스 기초 수업을 마친 수강생</span>
+      <b>수업 시간</b><span>4교시 (50분 × 4, 약 4시간)</span>
+      <b>데이터</b><span>titanic_kaggle.csv — Kaggle 원본, 승객 891명, 12개 열</span>
+      <b>코드</b><span>03_예제_타이타닉_데이터분석 · 04_실습문제_타이타닉 (.py / .ipynb)</span>
+      <b>필요 패키지</b><span>numpy, pandas, matplotlib, seaborn</span>
+    </div>
+    <div class="foot">github.com/sinaboro/Titanic_Data_Analysis</div>
+  </div>
 </section>
 
 <!-- ───────────── 목차 ───────────── -->
