@@ -33,12 +33,3 @@ pip install numpy pandas matplotlib seaborn
 ```
 
 예제 코드는 데이터를 `https://raw.githubusercontent.com/sinaboro/data/main/titanic_kaggle.csv`에서 바로 내려받습니다. 인터넷이 안 되면 `DATA_URL = 'titanic.csv'`로 바꿔 쓰세요.
-
-## 교안 PDF 다시 만들기
-
-```bash
-pip install numpy pandas matplotlib seaborn scikit-learn
-python handout_src/build.py
-```
-
-`build.py`는 CSV로 분석을 다시 돌려 `handout_src/figures/`의 그림을 그리고, 크롬(또는 엣지) 헤드리스로 `handout.html`을 인쇄해 `타이타닉_데이터분석_교안.pdf`를 만듭니다. 그래프 한글 글꼴은 맑은 고딕(Windows) 기준입니다.
