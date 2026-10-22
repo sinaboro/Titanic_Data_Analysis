@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>타이타닉 데이터 분석 교안</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 18mm 17mm;
+    @bottom-center { content: counter(page); font: 9pt 'Malgun Gothic', sans-serif; color: #8a8984; }
+    @top-right { content: "타이타닉 데이터 분석 교안"; font: 8pt 'Malgun Gothic', sans-serif; color: #8a8984; } }
+  @page :first { @bottom-center { content: none; } @top-right { content: none; } }
+  :root { --ink:#0b0b0b; --ink2:#52514e; --muted:#8a8984; --line:#e2e1dc; --blue:#2a78d6; --blue-bg:#eef4fc;
+          --orange:#eb6834; --orange-bg:#fdf1ec; --green:#1b8f63; --green-bg:#ecf8f2; --code-bg:#f6f6f4; }
+  * { box-sizing: border-box; }
+  body { background:#fff; color:var(--ink); font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+         font-size:10.3pt; line-height:1.68; margin:0; word-break:keep-all; }
+  h1 { font-size:19pt; margin:0 0 6pt; padding-bottom:6pt; border-bottom:3px solid var(--blue); break-before:page; }
+  h1 .no { color:var(--blue); margin-right:6pt; }
+  h2 { font-size:13pt; margin:16pt 0 5pt; break-after:avoid; }
+  h3 { font-size:11pt; margin:12pt 0 4pt; break-after:avoid; }
+  p { margin:4pt 0 6pt; }
+  .lead { color:var(--ink2); margin-bottom:10pt; }
+  ul, ol { margin:4pt 0 8pt; padding-left:18pt; } li { margin:2pt 0; }
+  table { border-collapse:collapse; width:100%; margin:6pt 0 10pt; font-size:9.4pt; break-inside:avoid; }
+  th, td { border:1px solid var(--line); padding:4pt 7pt; text-align:left; vertical-align:top; }
+  th { background:#f3f3f0; font-weight:bold; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+  code { font-family:Consolas,'D2Coding','Malgun Gothic',monospace; font-size:9pt; background:var(--code-bg); padding:0 3pt; border-radius:3px; }
+  pre { font-family:Consolas,'D2Coding','Malgun Gothic',monospace; font-size:8.7pt; line-height:1.5; background:var(--code-bg);
+        border-left:3px solid var(--blue); padding:7pt 10pt; margin:6pt 0 10pt; white-space:pre-wrap; break-inside:avoid; }
+  pre .c { color:#6b6a65; }
+  .label { display:inline-block; font-size:8.3pt; font-weight:bold; color:var(--blue); margin-top:6pt; }
+  .box { border-radius:6px; padding:8pt 12pt; margin:8pt 0 10pt; break-inside:avoid; }
+  .box > b:first-child { display:block; margin-bottom:2pt; }
+  .box ul { margin:2pt 0; }
+  .key   { background:var(--blue-bg);   border-left:4px solid var(--blue); }
+  .warn  { background:var(--orange-bg); border-left:4px solid var(--orange); }
+  .think { background:#f6f4fb; border-left:4px solid #6250d6; }
+  .note  { background:var(--green-bg);  border-left:4px solid var(--green); }
+  figure { margin:8pt 0 12pt; text-align:center; break-inside:avoid; }
+  figure img { max-width:100%; }
+  figure.s img { max-width:72%; }
+  figcaption { font-size:8.8pt; color:var(--muted); margin-top:2pt; }
+  .toc { columns:2; column-gap:24pt; font-size:10pt; }
+  .toc div { break-inside:avoid; margin:0 0 3pt; } .toc .sub { padding-left:14pt; color:var(--ink2); font-size:9.3pt; }
+  .cover { height:250mm; display:flex; flex-direction:column; justify-content:center; padding:0 6mm; }
+  .cover .kicker { color:var(--blue); font-weight:bold; letter-spacing:1px; }
+  .cover h1 { font-size:32pt; border:none; break-before:auto; margin:6pt 0; }
+  .cover .q { font-size:15pt; color:var(--ink2); margin-bottom:28pt; }
+  .cover table { width:auto; min-width:70%; font-size:10pt; }
+  .insight { border:1px solid var(--line); border-radius:8px; padding:10pt 14pt 4pt; margin:10pt 0 14pt; }
+  .insight h2 { margin-top:0; } .insight h2 .num { color:var(--blue); }
+  .insight .so { background:var(--blue-bg); border-radius:4px; padding:5pt 10pt; margin:6pt 0 8pt; }
+  .advice-step { display:flex; gap:10pt; margin:8pt 0; break-inside:avoid; }
+  .advice-step .n { flex:0 0 24pt; height:24pt; border-radius:50%; background:var(--blue); color:#fff; font-weight:bold;
+                    text-align:center; line-height:24pt; }
+  .advice-step div:last-child { flex:1; }
+  .advice-step h3 { margin:2pt 0 2pt; }
+  .avoid { break-inside:avoid; }
+</style>
+</head>
+<body>
+
+<!-- ───────────── 표지 ───────────── -->
+<section class="cover">
+  <div class="kicker">NumPy · Pandas 실전 프로젝트</div>
+  <h1>타이타닉 데이터 분석</h1>
+  <div class="q">"누가 살아남았을까? 그리고 그 이유는?"</div>
+  <table>
+    <tr><th>대상</th><td>넘파이·판다스 기초 수업을 마친 수강생</td></tr>
+    <tr><th>수업 시간</th><td>4교시 (50분 × 4, 약 4시간)</td></tr>
+    <tr><th>데이터</th><td>titanic_kaggle.csv (Kaggle 원본, 승객 891명, 12개 열)<br>— 코드에서 깃허브 URL로 바로 내려받음</td></tr>
+    <tr><th>예제 코드</th><td>03_예제_타이타닉_데이터분석 (.py / .ipynb)</td></tr>
+    <tr><th>실습 문제</th><td>04_실습문제_타이타닉 (.py / .ipynb) — 정답은 부록 A</td></tr>
+    <tr><th>필요 패키지</th><td>numpy, pandas, matplotlib, seaborn</td></tr>
+    <tr><th>저장소</th><td>github.com/sinaboro/Titanic_Data_Analysis</td></tr>
+  </table>
+</section>
+
+<!-- ───────────── 목차 ───────────── -->
+<h1>목차</h1>
+<div class="toc">
+  <div>0. 수업 안내</div>
+  <div>1. 환경 준비</div>
+  <div>2. 데이터 불러오기 &amp; 첫인상 살펴보기</div>
+  <div>3. 결측치(빈 값) 처리</div>
+  <div>4. 단일 변수 분석</div>
+  <div>5. 다변수 분석</div>
+  <div>6. 파생 변수 만들기</div>
+  <div>7. 시각화</div>
+  <div>8. 발견한 사실 &amp; 간단한 생존 예측</div>
+  <div>9. 오늘 배운 내용 정리</div>
+  <div><b>10. 타이타닉 데이터가 알려 준 인사이트 5가지</b></div>
+  <div class="sub">① 성별은 등급보다 강했다</div>
+  <div class="sub">② "어린이 먼저"에도 등급의 벽이 있었다</div>
+  <div class="sub">③ 가족은 2~4명일 때 가장 유리했다</div>
+  <div class="sub">④ 항구가 사람을 살린 것이 아니다</div>
+  <div class="sub">⑤ 빈 값도 정보다</div>
+  <div><b>11. 데이터 분석, 이렇게 하세요 — 조언</b></div>
+  <div>부록 A. 실습문제 정답</div>
+  <div>부록 B. 자주 묻는 질문</div>
+</div>
+<p class="lead" style="margin-top:14pt">이 교안은 수업용 하나의 자료입니다. 각 장의 <b>생각해보기</b>는 먼저 스스로 답해 본 뒤, 바로 아래 <b>해설</b> 상자에서 확인하세요. 실습문제 정답은 부록 A에 있으니 직접 풀어 본 다음 펼쳐 보는 것을 권합니다.</p>
+
+<!-- ───────────── 0장 ───────────── -->
+<h1><span class="no">0</span>수업 안내</h1>
+<h2>0-1. 이 수업에서 배우는 것</h2>
+<p>지금까지 배운 넘파이·판다스 문법을 실제 데이터에 적용해 보면서, 데이터 분석의 전체 흐름을 처음부터 끝까지 경험합니다. 이 수업을 마치면 다음을 할 수 있습니다.</p>
+<ul>
+  <li>판다스로 CSV 데이터를 불러오고 구조를 파악할 수 있다.</li>
+  <li>결측치(빈 값)를 찾아서 상황에 맞게 처리할 수 있다.</li>
+  <li><code>groupby</code>, <code>pivot_table</code>로 그룹별 통계를 비교할 수 있다.</li>
+  <li>기존 열을 가공해 파생 변수를 만들 수 있다.</li>
+  <li>분석 결과를 그래프로 표현하고 말로 설명(인사이트)할 수 있다.</li>
+</ul>
+<h2>0-2. 데이터 분석의 흐름 (수업 순서)</h2>
+<table>
+  <tr><th>장</th><th>단계</th><th>내용</th><th>주요 도구</th></tr>
+  <tr><td>1</td><td>환경 준비</td><td>라이브러리 불러오기, 한글 폰트 설정</td><td><code>import</code></td></tr>
+  <tr><td>2</td><td>데이터 살펴보기</td><td>크기·모양·자료형 확인</td><td><code>read_csv, head, info, describe</code></td></tr>
+  <tr><td>3</td><td>결측치 처리</td><td>빈 값 찾아서 채우기/버리기</td><td><code>isnull, fillna, drop</code></td></tr>
+  <tr><td>4</td><td>단일 변수 분석</td><td>성별·등급·항구별 생존율</td><td><code>value_counts, groupby</code></td></tr>
+  <tr><td>5</td><td>다변수 분석</td><td>두 조건을 함께 비교</td><td><code>pivot_table, crosstab</code></td></tr>
+  <tr><td>6</td><td>파생 변수</td><td>가족 수, 나이대, 호칭 만들기</td><td><code>np.where, pd.cut, str.extract</code></td></tr>
+  <tr><td>7</td><td>시각화</td><td>그래프로 한눈에 보기</td><td><code>seaborn, matplotlib</code></td></tr>
+  <tr><td>8</td><td>사실 정리 &amp; 예측</td><td>규칙으로 생존 예측하기</td><td>넘파이 비교 연산</td></tr>
+  <tr><td>9</td><td>정리</td><td>핵심 코드 요약, 자주 만나는 오류</td><td>—</td></tr>
+  <tr><td>10·11</td><td>인사이트 &amp; 조언</td><td>분석 결과를 의미로 바꾸고, 분석하는 방법을 돌아보기</td><td>—</td></tr>
+</table>
+<h2>0-3. 수업 자료 구성</h2>
+<table>
+  <tr><th>파일</th><th>설명</th></tr>
+  <tr><td>titanic_kaggle.csv</td><td>분석할 데이터(Kaggle 원본). 예제는 깃허브에서 바로 내려받으므로, 인터넷이 안 될 때만 예제와 같은 폴더에 두고 사용</td></tr>
+  <tr><td>03_예제_타이타닉_데이터분석 .ipynb / .py</td><td>교안 1~9장 코드가 같은 번호 순서로 들어 있는 예제. 주석이 자세히 달려 있음</td></tr>
+  <tr><td>04_실습문제_타이타닉 .ipynb / .py</td><td>15개 실습 문제 (기초 5 · 중급 6 · 도전 4). 정답은 부록 A</td></tr>
+  <tr><td>handout_src/</td><td>이 교안 PDF를 만드는 소스 (build.py, handout.html, 그림)</td></tr>
+</table>
+<div class="box key"><b>공부하는 방법</b>
+<ul>
+  <li>교안에서 개념을 읽고 → 예제 코드에서 같은 번호의 셀을 실행하고 → 결과를 교안의 표·그래프와 비교하세요.</li>
+  <li>코드를 실행하기 전에 <b>"결과가 어떻게 나올까?"</b>를 먼저 예상해 보세요. 예측 → 실행 → 비교를 거치면 훨씬 오래 기억합니다.</li>
+  <li>주피터 노트북(.ipynb)으로 보는 것을 추천합니다. .py 파일은 VS Code 등에서 <code># %%</code> 셀 단위로 실행할 수 있습니다.</li>
+</ul></div>
+<h2>0-4. 권장 진행 순서</h2>
+<table>
+  <tr><th>교시</th><th>내용</th><th>시간</th><th>포인트</th></tr>
+  <tr><td>1교시</td><td>0장 수업 안내, 1~2장 환경 준비·데이터 살펴보기</td><td>50분</td><td>설치·폰트 문제를 이때 모두 해결</td></tr>
+  <tr><td>2교시</td><td>3장 결측치 처리, 4장 단일 변수 분석</td><td>50분</td><td><code>transform</code> 개념에 시간 투자</td></tr>
+  <tr><td>3교시</td><td>5장 다변수 분석, 6장 파생 변수</td><td>50분</td><td>정규식은 가볍게</td></tr>
+  <tr><td>4교시</td><td>7장 시각화, 8~11장 예측·인사이트·조언</td><td>50분</td><td>실습문제는 남은 시간 또는 과제</td></tr>
+</table>
+<div class="box warn"><b>시작 전 체크리스트</b>
+<ul>
+  <li>패키지 설치 확인: <code>pip install pandas numpy matplotlib seaborn</code></li>
+  <li>브라우저에서 데이터 주소가 열리는지 확인: <code>https://raw.githubusercontent.com/sinaboro/data/main/titanic_kaggle.csv</code></li>
+  <li>구글 코랩은 첫 실행 때 나눔고딕 글꼴이 자동 설치(약 10~20초)됩니다.</li>
+  <li>판다스 3.x 기준입니다. 판다스 3부터는 <code>df["열"].fillna(값, inplace=True)</code> 같은 체인 할당이 원본을 바꾸지 않으므로 <b><code>df["열"] = df["열"].fillna(값)</code></b> 형태로 쓰세요. 문자열 열의 자료형도 <code>object</code> 대신 <code>str</code>로 표시됩니다.</li>
+</ul></div>
+
+<!-- ───────────── 1장 ───────────── -->
+<h1><span class="no">1</span>환경 준비</h1>
+<p class="lead">분석에 필요한 도구(라이브러리)를 불러오고, 그래프에서 한글이 깨지지 않도록 글꼴을 설정합니다.</p>
+<table>
+  <tr><th>라이브러리</th><th>별명</th><th>하는 일</th></tr>
+  <tr><td>numpy</td><td>np</td><td>숫자 계산, 배열 연산 (조건으로 값 만들기: <code>np.where</code>)</td></tr>
+  <tr><td>pandas</td><td>pd</td><td>표(DataFrame) 형태의 데이터 다루기</td></tr>
+  <tr><td>matplotlib</td><td>plt</td><td>그래프 그리기의 기본 도구 (제목, 축 이름, 화면 표시)</td></tr>
+  <tr><td>seaborn</td><td>sns</td><td>matplotlib을 더 쉽고 예쁘게 쓰게 해주는 통계 그래프 도구</td></tr>
+</table>
+<h2>1-1. 라이브러리 불러오기</h2>
+<span class="label">예제 1-1</span>
+<pre>import numpy as np                <span class="c"># 넘파이는 관례적으로 np 라는 별명으로</span>
+import pandas as pd               <span class="c"># 판다스는 pd</span>
+import matplotlib.pyplot as plt   <span class="c"># 그래프 도구는 plt</span>
+import seaborn as sns             <span class="c"># 시본은 sns</span></pre>
+<h2>1-2. 그래프 한글 폰트 설정</h2>
+<p>matplotlib의 기본 글꼴은 한글을 지원하지 않아서 한글이 □□□처럼 깨집니다. 운영체제에 맞는 한글 글꼴을 지정합니다.</p>
+<span class="label">예제 1-2</span>
+<pre>import platform
+if platform.system() == 'Windows':   font_name = 'Malgun Gothic'   <span class="c"># 윈도우 → 맑은 고딕</span>
+elif platform.system() == 'Darwin':  font_name = 'AppleGothic'     <span class="c"># 맥 → 애플고딕</span>
+else:                                font_name = 'NanumGothic'     <span class="c"># 리눅스/코랩 → 나눔고딕</span>
+
+sns.set_theme(style='whitegrid', font=font_name)   <span class="c"># 스타일 + 글꼴 함께 지정</span>
+plt.rcParams['axes.unicode_minus'] = False         <span class="c"># 마이너스(-) 기호 깨짐 방지</span></pre>
+<div class="box warn"><b>주의</b><code>sns.set_theme()</code>은 글꼴 설정을 초기화합니다. 글꼴은 반드시 <code>set_theme(font=...)</code> 안에 함께 넣거나, <code>set_theme()</code> 뒤에 설정하세요.</div>
+<h2>1-3. 데이터 주소 지정 (깃허브에서 바로 내려받기)</h2>
+<p>데이터 파일을 따로 내려받을 필요 없이, 깃허브에 올려 둔 CSV를 URL로 바로 읽습니다. 내 PC, 주피터, 구글 코랩 어디서든 똑같이 실행됩니다.</p>
+<span class="label">예제 1-3</span>
+<pre>DATA_URL = 'https://raw.githubusercontent.com/sinaboro/data/main/titanic_kaggle.csv'
+df = pd.read_csv(DATA_URL)    <span class="c"># 주소를 넣으면 내려받으면서 바로 읽어 줌</span></pre>
+<ul>
+  <li><code>raw.githubusercontent.com</code> 주소는 깃허브 웹페이지가 아니라 파일의 원본 내용(raw)만 돌려줍니다. <code>read_csv()</code>에는 반드시 raw 주소를 넣어야 합니다.</li>
+  <li>주소 형식: <code>https://raw.githubusercontent.com/&lt;계정&gt;/&lt;저장소&gt;/&lt;브랜치&gt;/&lt;파일이름&gt;</code></li>
+  <li>인터넷이 안 되면 <code>titanic_kaggle.csv</code>를 노트북과 같은 폴더에 두고 <code>DATA_URL = "titanic_kaggle.csv"</code>로 바꿔 씁니다.</li>
+</ul>
+<div class="box note"><b>해설 · 1장에서 자주 생기는 문제</b>
+<ul>
+  <li><b>HTTPError: 404</b> — URL 오타이거나 깃허브에 파일이 아직 없는 경우. 브라우저로 주소를 한 번 열어 보세요.</li>
+  <li>예제 2-1 셀은 열 이름을 검사해서, 형식이 다른 파일이면 "⚠ 이 예제와 다른 형식의 파일입니다"를 출력합니다. seaborn 버전 titanic.csv(열 이름 소문자, Name·Cabin 없음)를 읽으면 3장에서 KeyError가 나니 <b>titanic_kaggle.csv</b>를 쓰세요.</li>
+  <li>학교·기관 네트워크에서 깃허브가 막혀 있으면 CSV 파일을 직접 받아 로컬 경로로 읽습니다.</li>
+</ul></div>
+
+<!-- ───────────── 2장 ───────────── -->
+<h1><span class="no">2</span>데이터 불러오기 &amp; 첫인상 살펴보기</h1>
+<p class="lead">데이터 분석의 첫 단계는 "이 데이터가 어떻게 생겼는지" 아는 것입니다. 처음 보는 데이터를 만나면 항상 아래 네 가지를 확인하세요.</p>
+<table>
+  <tr><th>확인할 것</th><th>코드</th><th>알 수 있는 것</th></tr>
+  <tr><td>몇 행, 몇 열?</td><td><code>df.shape</code></td><td>(891, 12) → 승객 891명, 정보 12가지</td></tr>
+  <tr><td>실제 값은?</td><td><code>df.head(), df.tail(), df.sample()</code></td><td>각 열에 어떤 값이 들어 있는지</td></tr>
+  <tr><td>자료형과 빈 값은?</td><td><code>df.info()</code></td><td>열별 자료형, 비어 있지 않은 값의 개수</td></tr>
+  <tr><td>숫자 열의 분포는?</td><td><code>df.describe()</code></td><td>평균, 최솟값, 최댓값, 사분위수</td></tr>
+</table>
+<h2>2-1. CSV 파일 불러오기</h2>
+<span class="label">예제 2-1</span>
+<pre>df = pd.read_csv(DATA_URL)       <span class="c"># 깃허브의 CSV 를 읽어서 DataFrame(표)으로 만들기</span>
+df_raw = df.copy()                <span class="c"># 원본은 따로 복사해 두기 (언제든 다시 시작 가능)</span>
+print('데이터 크기(행, 열) :', df.shape)   <span class="c"># (891, 12)</span>
+df.head()                         <span class="c"># 위에서부터 5 줄 보기</span></pre>
+<div class="box warn"><b>주의</b><code>df_raw = df</code>처럼 그냥 대입하면 복사가 아니라 같은 데이터를 가리키는 이름이 하나 더 생길 뿐입니다(넘파이의 view와 같은 개념). 원본을 보존하려면 반드시 <code>.copy()</code>를 쓰세요.</div>
+<h2>2-2. 컬럼(열) 설명</h2>
+<table>
+  <tr><th>컬럼</th><th>의미</th><th>값의 예</th></tr>
+  <tr><td>PassengerId</td><td>승객 번호</td><td>1, 2, 3 …</td></tr>
+  <tr><td>Survived</td><td>생존 여부 (분석 대상!)</td><td>0 = 사망, 1 = 생존</td></tr>
+  <tr><td>Pclass</td><td>객실 등급</td><td>1 = 1등석, 2 = 2등석, 3 = 3등석</td></tr>
+  <tr><td>Name</td><td>이름 (호칭 포함)</td><td>Braund, Mr. Owen Harris</td></tr>
+  <tr><td>Sex</td><td>성별</td><td>male, female</td></tr>
+  <tr><td>Age</td><td>나이</td><td>22.0, 0.42(아기) …</td></tr>
+  <tr><td>SibSp</td><td>함께 탄 형제자매 + 배우자 수</td><td>0, 1, 2 …</td></tr>
+  <tr><td>Parch</td><td>함께 탄 부모 + 자녀 수</td><td>0, 1, 2 …</td></tr>
+  <tr><td>Ticket</td><td>티켓 번호</td><td>A/5 21171</td></tr>
+  <tr><td>Fare</td><td>운임(요금)</td><td>7.25, 71.28 …</td></tr>
+  <tr><td>Cabin</td><td>객실 번호</td><td>C85 (빈 값이 매우 많음)</td></tr>
+  <tr><td>Embarked</td><td>탑승 항구</td><td>C = 셰르부르, Q = 퀸스타운, S = 사우샘프턴</td></tr>
+</table>
+<h2>2-3. 구조와 요약 통계 확인</h2>
+<span class="label">예제 2-2, 2-3</span>
+<pre>df.info()                        <span class="c"># 열별 자료형과 비어 있지 않은 값의 개수</span>
+df.describe().round(2)           <span class="c"># 숫자 열 요약 통계 (소수 둘째 자리까지)</span>
+df.describe(exclude='number')    <span class="c"># 문자열 열 요약 (종류 수, 최빈값 등)</span></pre>
+<p><code>info()</code> 결과에서 Non-Null Count가 891보다 작은 열이 결측치가 있는 열입니다.</p>
+<table>
+  <tr><th>열</th><th class="n">개수</th><th class="n">평균</th><th class="n">최솟값</th><th class="n">중앙값</th><th class="n">최댓값</th></tr>
+  <tr><td>Survived</td><td class="n">891</td><td class="n">0.38</td><td class="n">0</td><td class="n">0</td><td class="n">1</td></tr>
+  <tr><td>Pclass</td><td class="n">891</td><td class="n">2.31</td><td class="n">1</td><td class="n">3</td><td class="n">3</td></tr>
+  <tr><td>Age</td><td class="n">714</td><td class="n">29.70</td><td class="n">0.42</td><td class="n">28.00</td><td class="n">80.00</td></tr>
+  <tr><td>Fare</td><td class="n">891</td><td class="n">32.20</td><td class="n">0.00</td><td class="n">14.45</td><td class="n">512.33</td></tr>
+</table>
+<div class="box think"><b>생각해보기</b>
+<ol>
+  <li>Survived의 평균이 0.38입니다. 이 숫자는 무엇을 의미할까요? (힌트: 0과 1로만 된 열의 평균)</li>
+  <li>Fare의 최댓값(512)과 중앙값(14.45)을 비교해 보세요. 무엇을 알 수 있나요?</li>
+  <li>Age의 개수가 891이 아니라 714인 이유는?</li>
+</ol></div>
+<div class="box note"><b>해설</b>
+<ol>
+  <li>전체 승객 중 생존자 비율 = 약 38.4%. <b>"0/1 열의 평균 = 1의 비율"</b>은 4장에서 <code>groupby().mean()</code>으로 생존율을 구하는 핵심 개념입니다.</li>
+  <li>일부 승객이 매우 비싼 표를 샀다 → 오른쪽으로 치우친 분포·이상치. 평균(32.2)이 중앙값(14.45)보다 훨씬 큰 이유도 같습니다.</li>
+  <li>나이를 모르는 승객이 177명 → 3장 결측치 처리로 연결됩니다.</li>
+</ol></div>
+
+<!-- ───────────── 3장 ───────────── -->
+<h1><span class="no">3</span>결측치(빈 값) 처리</h1>
+<p class="lead">현실의 데이터에는 빈 값(결측치, NaN)이 자주 있습니다. 그대로 두면 평균 계산, 그래프, 머신러닝에서 문제가 생기므로 <b>찾아내고 → 이유를 생각하고 → 적절히 처리</b>해야 합니다.</p>
+<figure class="s"><img src="figures/fig3_missing.png"><figcaption>그림 3-1. 열별 결측치 비율</figcaption></figure>
+<table>
+  <tr><th>처리 방법</th><th>언제 쓰나?</th><th>코드</th></tr>
+  <tr><td>삭제</td><td>빈 값이 너무 많거나, 아주 조금일 때</td><td><code>dropna(), drop()</code></td></tr>
+  <tr><td>대표값으로 채우기</td><td>숫자 → 평균/중앙값, 문자 → 최빈값</td><td><code>fillna()</code></td></tr>
+  <tr><td>그룹별 대표값으로 채우기</td><td>그룹마다 값의 차이가 클 때</td><td><code>groupby().transform()</code></td></tr>
+</table>
+<h2>3-1. 결측치 개수와 비율 확인</h2>
+<span class="label">예제 3-1</span>
+<pre>df.isnull().sum()          <span class="c"># 빈 값이면 True(1) → 더하면 열별 결측치 개수</span>
+df.isnull().mean() * 100   <span class="c"># 평균을 내면 결측치 비율(%)</span></pre>
+<table>
+  <tr><th>열</th><th class="n">결측치 수</th><th class="n">비율</th><th>처리 방법</th></tr>
+  <tr><td>Cabin</td><td class="n">687</td><td class="n">77.1%</td><td>너무 많이 비어 있음 → "객실 정보 있음(HasCabin)" 열만 만들고 삭제</td></tr>
+  <tr><td>Age</td><td class="n">177</td><td class="n">19.9%</td><td>중요한 정보 → 그룹별 중앙값으로 채우기</td></tr>
+  <tr><td>Embarked</td><td class="n">2</td><td class="n">0.2%</td><td>단 2개 → 최빈값(S)으로 채우기</td></tr>
+</table>
+<h2>3-2. Embarked : 최빈값으로 채우기</h2>
+<span class="label">예제 3-2</span>
+<pre>most_common_port = df['Embarked'].mode()[0]   <span class="c"># 최빈값 (결과가 Series 라서 [0]으로 꺼냄)</span>
+df['Embarked'] = df['Embarked'].fillna(most_common_port)   <span class="c"># 결과를 꼭 다시 대입!</span></pre>
+<h2>3-3. Cabin : 파생 변수를 만들고 삭제</h2>
+<span class="label">예제 3-3</span>
+<pre>df['HasCabin'] = df['Cabin'].notnull().astype(int)   <span class="c"># 값이 있으면 1, 없으면 0</span>
+df = df.drop(columns=['Cabin'])                      <span class="c"># Cabin 열 삭제</span></pre>
+<p>객실 번호가 기록된 승객의 생존율은 <b>66.7%</b>, 기록이 없는 승객은 <b>30.0%</b>였습니다. 빈 값 자체가 정보가 될 수도 있습니다 (→ 10장 인사이트 ⑤).</p>
+<h2>3-4. Age : 그룹별 중앙값으로 채우기</h2>
+<p>전체 중앙값(28세) 하나로 채울 수도 있지만, 객실 등급·성별에 따라 나이 차이가 큽니다.</p>
+<table>
+  <tr><th>객실 등급</th><th class="n">여성 중앙값</th><th class="n">남성 중앙값</th></tr>
+  <tr><td>1등석</td><td class="n">35.0세</td><td class="n">40.0세</td></tr>
+  <tr><td>2등석</td><td class="n">28.0세</td><td class="n">30.0세</td></tr>
+  <tr><td>3등석</td><td class="n">21.5세</td><td class="n">25.0세</td></tr>
+</table>
+<span class="label">예제 3-4</span>
+<pre><span class="c"># transform('median') : 그룹별 중앙값을 '원래 행 개수(891 개) 그대로' 각 행에 붙여 줌</span>
+group_median_age = df.groupby(['Pclass', 'Sex'])['Age'].transform('median')
+df['Age'] = df['Age'].fillna(group_median_age)   <span class="c"># 빈 칸만 그룹 중앙값으로 채워짐</span>
+df.isnull().sum().sum()                          <span class="c"># 0 이면 모든 결측치 처리 완료!</span></pre>
+<div class="box key"><b>agg 와 transform 의 차이</b>
+<ul>
+  <li><code>groupby().median()</code> → 그룹 수만큼(6행) 결과가 나옴 → fillna에 바로 못 넣음</li>
+  <li><code>groupby().transform("median")</code> → 원래 행 수(891행) 그대로 결과가 나옴 → fillna에 바로 넣을 수 있음</li>
+</ul></div>
+<div class="box think"><b>생각해보기</b>
+<ol>
+  <li>Cabin의 결측치를 최빈값으로 채운다면 어떤 문제가 생길까요?</li>
+  <li>Age를 평균이 아니라 중앙값으로 채운 이유는 무엇일까요?</li>
+</ol></div>
+<div class="box note"><b>해설</b>
+<ol>
+  <li>77%의 승객이 모두 같은 객실에 묵은 것처럼 되어 데이터가 심하게 왜곡됩니다. <b>"채울 수 있다 ≠ 채워야 한다"</b>.</li>
+  <li>중앙값은 극단값(이상치)의 영향을 덜 받기 때문입니다. 나이는 차이가 작지만 Fare 같은 치우친 데이터에서는 차이가 큽니다.</li>
+</ol>
+<b>자주 하는 실수</b>
+<ul>
+  <li><code>df["Age"].fillna(28)</code>만 하고 대입을 안 함 → 반환값을 대입해야 함</li>
+  <li><code>inplace=True</code> 사용 → 판다스 3에서는 원본이 바뀌지 않음 (Copy-on-Write)</li>
+  <li><code>groupby().median()</code> 결과(6행)를 fillna에 넣음 → 행 개수가 달라서 안 됨</li>
+</ul>
+<b>심화</b> 6장에서 호칭(Title)을 뽑은 뒤, 호칭별 중앙값으로 다시 채워 보세요.</div>
+
+<!-- ───────────── 4장 ───────────── -->
+<h1><span class="no">4</span>단일 변수 분석</h1>
+<p class="lead">이제 질문을 던지고 데이터로 답을 찾아봅니다.</p>
+<div class="box key"><b>핵심 아이디어</b>
+<ul>
+  <li>Survived는 0(사망)/1(생존)이므로 <b>평균을 내면 곧 생존율</b>입니다.</li>
+  <li><code>df.groupby("기준열")["Survived"].mean()</code> → 기준열 그룹별 생존율</li>
+</ul></div>
+<h2>4-1. 전체 생존 현황</h2>
+<span class="label">예제 4-1</span>
+<pre>df['Survived'].value_counts()                  <span class="c"># 0: 549 명, 1: 342 명</span>
+df['Survived'].value_counts(normalize=True)    <span class="c"># 비율로 보기</span>
+df['Survived'].mean()                          <span class="c"># 전체 생존율 0.384</span></pre>
+<h2>4-2. 성별 생존율</h2>
+<span class="label">예제 4-2</span>
+<pre>sex_survival = df.groupby('Sex')['Survived'].agg(['count', 'sum', 'mean'])
+<span class="c"># count = 승객 수, sum = 생존자 수, mean = 생존율</span></pre>
+<table>
+  <tr><th>성별</th><th class="n">승객 수</th><th class="n">생존자 수</th><th class="n">생존율</th></tr>
+  <tr><td>female (여성)</td><td class="n">314</td><td class="n">233</td><td class="n">74.2%</td></tr>
+  <tr><td>male (남성)</td><td class="n">577</td><td class="n">109</td><td class="n">18.9%</td></tr>
+</table>
+<p>여성의 생존율이 남성보다 약 4배 높습니다. "여성과 어린이 먼저"라는 구조 원칙이 실제로 지켜졌음을 데이터로 확인할 수 있습니다.</p>
+<h2>4-3. 객실 등급별 · 탑승 항구별 생존율</h2>
+<div style="display:flex; gap:14pt">
+<table style="flex:1"><tr><th>객실 등급</th><th class="n">승객 수</th><th class="n">생존율</th></tr>
+  <tr><td>1등석</td><td class="n">216</td><td class="n">63.0%</td></tr>
+  <tr><td>2등석</td><td class="n">184</td><td class="n">47.3%</td></tr>
+  <tr><td>3등석</td><td class="n">491</td><td class="n">24.2%</td></tr></table>
+<table style="flex:1"><tr><th>탑승 항구</th><th class="n">생존율</th></tr>
+  <tr><td>C (셰르부르)</td><td class="n">55.4%</td></tr>
+  <tr><td>Q (퀸스타운)</td><td class="n">39.0%</td></tr>
+  <tr><td>S (사우샘프턴)</td><td class="n">33.9%</td></tr></table>
+</div>
+<h2>4-4. 생존자 vs 사망자 평균 비교</h2>
+<span class="label">예제 4-5</span>
+<pre>df.groupby('Survived')[['Age', 'Fare', 'SibSp', 'Parch', 'HasCabin']].mean()</pre>
+<table>
+  <tr><th>구분</th><th class="n">평균 나이</th><th class="n">평균 요금</th><th class="n">객실 정보 있음</th></tr>
+  <tr><td>사망 (0)</td><td class="n">29.7세</td><td class="n">22.12</td><td class="n">12%</td></tr>
+  <tr><td>생존 (1)</td><td class="n">28.1세</td><td class="n">48.40</td><td class="n">40%</td></tr>
+</table>
+<div class="box think"><b>생각해보기</b>
+<ol>
+  <li>1등석 생존율은 3등석의 몇 배인가요? 왜 이런 차이가 났을까요?</li>
+  <li>셰르부르(C) 항구 승객의 생존율이 높은 것은 항구 자체 때문일까요? (힌트: 항구별 객실 등급 구성 → 5장)</li>
+</ol></div>
+<div class="box note"><b>해설</b>
+<ol>
+  <li>약 2.6배 (63.0 ÷ 24.2). 1등석은 갑판(구명보트)과 가까웠고, 3등석은 배 아래쪽에 있어 탈출 경로가 길었습니다.</li>
+  <li><b>상관관계 ≠ 인과관계</b>. C 항구는 1등석 비율이 높아서 생존율이 높아 보이는 것입니다(교란 변수). 5장 crosstab과 10장 인사이트 ④에서 확인합니다.</li>
+</ol>
+<code>agg(["count","sum","mean"])</code>처럼 리스트로 여러 함수를 한 번에 넣을 수 있습니다.</div>
+
+<!-- ───────────── 5장 ───────────── -->
+<h1><span class="no">5</span>다변수 분석</h1>
+<p class="lead">성별도 중요하고 등급도 중요했습니다. 그렇다면 "3등석 여성"과 "1등석 남성" 중 누가 더 많이 살아남았을까요? 두 개 이상의 조건을 함께 비교할 때는 <code>pivot_table</code>과 <code>crosstab</code>을 사용합니다.</p>
+<h2>5-1. pivot_table : 엑셀 피벗 테이블처럼</h2>
+<span class="label">예제 5-2</span>
+<pre>pd.pivot_table(df,
+               index='Sex',        <span class="c"># 행(세로) 기준</span>
+               columns='Pclass',   <span class="c"># 열(가로) 기준</span>
+               values='Survived',  <span class="c"># 계산할 값</span>
+               aggfunc='mean')     <span class="c"># 계산 방법 (평균 = 생존율)</span></pre>
+<table>
+  <tr><th>성별 \ 등급</th><th class="n">1등석</th><th class="n">2등석</th><th class="n">3등석</th></tr>
+  <tr><td>female</td><td class="n">96.8%</td><td class="n">92.1%</td><td class="n">50.0%</td></tr>
+  <tr><td>male</td><td class="n">36.9%</td><td class="n">15.7%</td><td class="n">13.5%</td></tr>
+</table>
+<p>1·2등석 여성은 90% 이상 생존했지만, 2·3등석 남성은 15% 안팎에 그쳤습니다. 3등석 여성(50%)이 1등석 남성(37%)보다 생존율이 높습니다 → <b>성별의 영향이 등급보다 컸습니다.</b></p>
+<div class="box note"><b>해설</b> <code>df.groupby(["Sex","Pclass"])["Survived"].mean().unstack()</code>의 결과가 pivot_table과 같습니다. 즉석 퀴즈: <code>aggfunc</code>를 <code>"count"</code>, <code>"sum"</code>으로 바꾸면? → 승객 수, 생존자 수</div>
+<h2>5-2. crosstab : 두 범주의 교차표</h2>
+<span class="label">예제 5-3</span>
+<pre>pd.crosstab(df['Embarked'], df['Pclass'], margins=True)          <span class="c"># 개수 + 합계</span>
+pd.crosstab(df['Embarked'], df['Pclass'], normalize='index')     <span class="c"># 행(항구)별 비율</span></pre>
+<table>
+  <tr><th>항구 \ 등급</th><th class="n">1등석</th><th class="n">2등석</th><th class="n">3등석</th></tr>
+  <tr><td>C</td><td class="n">50.6%</td><td class="n">10.1%</td><td class="n">39.3%</td></tr>
+  <tr><td>Q</td><td class="n">2.6%</td><td class="n">3.9%</td><td class="n">93.5%</td></tr>
+  <tr><td>S</td><td class="n">20.0%</td><td class="n">25.4%</td><td class="n">54.6%</td></tr>
+</table>
+<div class="box key"><b>핵심 정리</b>
+<ul>
+  <li>C 항구 승객은 절반 이상이 1등석이었습니다. C 항구의 생존율이 높았던 것은 항구 때문이 아니라 1등석 승객이 많았기 때문입니다.</li>
+  <li><b>상관관계 ≠ 인과관계</b>: 두 값이 함께 움직인다고 해서 하나가 다른 하나의 원인인 것은 아닙니다.</li>
+</ul></div>
+
+<!-- ───────────── 6장 ───────────── -->
+<h1><span class="no">6</span>파생 변수 만들기</h1>
+<p class="lead">기존 열을 조합하거나 가공해서 분석에 더 유용한 새 열을 만드는 것을 파생 변수(Feature Engineering)라고 합니다.</p>
+<table>
+  <tr><th>새 열</th><th>만드는 방법</th><th>사용할 도구</th></tr>
+  <tr><td>FamilySize</td><td>형제자매·배우자 + 부모·자녀 + 본인</td><td>열끼리 덧셈</td></tr>
+  <tr><td>IsAlone</td><td>가족 수가 1명이면 1, 아니면 0</td><td><code>np.where</code></td></tr>
+  <tr><td>AgeGroup</td><td>나이를 구간으로 나누기</td><td><code>pd.cut</code></td></tr>
+  <tr><td>FareBand</td><td>요금을 같은 인원수로 4등분</td><td><code>pd.qcut</code></td></tr>
+  <tr><td>Title</td><td>이름에서 호칭(Mr, Mrs…) 뽑기</td><td><code>str.extract</code></td></tr>
+</table>
+<h2>6-1. FamilySize · IsAlone</h2>
+<span class="label">예제 6-1</span>
+<pre>df['FamilySize'] = df['SibSp'] + df['Parch'] + 1         <span class="c"># +1 은 '나 자신'</span>
+df['IsAlone'] = np.where(df['FamilySize'] == 1, 1, 0)    <span class="c"># np.where(조건, 참값, 거짓값)</span></pre>
+<table>
+  <tr><th>가족 수</th><td class="n">1</td><td class="n">2</td><td class="n">3</td><td class="n">4</td><td class="n">5</td><td class="n">6</td><td class="n">7</td><td class="n">8</td><td class="n">11</td></tr>
+  <tr><th>승객 수</th><td class="n">537</td><td class="n">161</td><td class="n">102</td><td class="n">29</td><td class="n">15</td><td class="n">22</td><td class="n">12</td><td class="n">6</td><td class="n">7</td></tr>
+  <tr><th>생존율</th><td class="n">30.4%</td><td class="n">55.3%</td><td class="n">57.8%</td><td class="n">72.4%</td><td class="n">20.0%</td><td class="n">13.6%</td><td class="n">33.3%</td><td class="n">0%</td><td class="n">0%</td></tr>
+</table>
+<p>혼자 탄 승객(30%)보다 2~4인 가족(55~72%)의 생존율이 높았지만, 5인 이상 대가족은 오히려 크게 낮았습니다.</p>
+<h2>6-2. AgeGroup : pd.cut 으로 구간 나누기</h2>
+<span class="label">예제 6-2</span>
+<pre>df['AgeGroup'] = pd.cut(df['Age'],
+                        bins=[0, 12, 19, 39, 59, 100],              <span class="c"># 구간 경계</span>
+                        labels=['어린이', '청소년', '청년', '중년', '노년'])
+df.groupby('AgeGroup', observed=True)['Survived'].mean()</pre>
+<table>
+  <tr><th>나이대</th><td>어린이(~12)</td><td>청소년(~19)</td><td>청년(~39)</td><td>중년(~59)</td><td>노년(60~)</td></tr>
+  <tr><th>생존율</th><td class="n">58.0%</td><td class="n">41.1%</td><td class="n">36.3%</td><td class="n">37.3%</td><td class="n">26.9%</td></tr>
+</table>
+<h2>6-3. FareBand : pd.qcut 으로 4등분</h2>
+<div class="box key"><b>cut vs qcut</b>
+<ul>
+  <li><code>pd.cut</code> : 값의 범위를 기준으로 나눔 (<b>자로 재기</b>) → 구간마다 사람 수가 다를 수 있음</li>
+  <li><code>pd.qcut</code> : 사람 수가 같아지도록 나눔 (<b>줄 세우기</b>) → 4등분이면 각 구간에 약 25%씩</li>
+</ul></div>
+<span class="label">예제 6-3</span>
+<pre>df['FareBand'] = pd.qcut(df['Fare'], 4, labels=['저가', '중저가', '중고가', '고가'])</pre>
+<p>요금 등급별 생존율: 저가 19.7% → 중저가 30.4% → 중고가 45.5% → 고가 58.1%. 비싼 표일수록 생존율이 높습니다.</p>
+<h2>6-4. Title : 이름에서 호칭 뽑기</h2>
+<p>이름 형식은 "성, 호칭. 이름"입니다. 예) Braund, <b>Mr</b>. Owen Harris → 쉼표와 마침표 사이를 뽑으면 호칭!</p>
+<span class="label">예제 6-4</span>
+<pre>df['Title'] = df['Name'].str.extract(r',\s*([^\.]+)\.', expand=False)   <span class="c"># 쉼표~마침표 사이</span>
+df['Title'] = df['Title'].replace({'Mlle': 'Miss', 'Ms': 'Miss', 'Mme': 'Mrs'})
+main_titles = ['Mr', 'Miss', 'Mrs', 'Master']
+df['Title'] = np.where(df['Title'].isin(main_titles), df['Title'], 'Rare')  <span class="c"># 나머지는 Rare</span></pre>
+<table>
+  <tr><th>호칭</th><th>의미</th><th class="n">승객 수</th><th class="n">평균 나이</th><th class="n">생존율</th></tr>
+  <tr><td>Mr</td><td>성인 남성</td><td class="n">517</td><td class="n">31.3세</td><td class="n">15.7%</td></tr>
+  <tr><td>Master</td><td>어린 남자아이</td><td class="n">40</td><td class="n">6.6세</td><td class="n">57.5%</td></tr>
+  <tr><td>Miss</td><td>미혼 여성</td><td class="n">185</td><td class="n">21.9세</td><td class="n">70.3%</td></tr>
+  <tr><td>Mrs</td><td>기혼 여성</td><td class="n">126</td><td class="n">34.7세</td><td class="n">79.4%</td></tr>
+  <tr><td>Rare</td><td>Dr, Rev, Col 등</td><td class="n">23</td><td class="n">45.3세</td><td class="n">34.8%</td></tr>
+</table>
+<p>같은 남성이라도 Master(남자아이)는 생존율이 Mr의 3배 이상입니다 → "어린이 먼저" 원칙의 증거!</p>
+<div class="box note"><b>해설</b>
+<ul>
+  <li>정규표현식은 "쉼표와 마침표 사이를 뽑는다" 정도로 이해하면 충분합니다. 정규식 없는 대안: <code>df["Name"].str.split(",").str[1].str.split(".").str[0].str.strip()</code></li>
+  <li><code>np.where</code>는 넘파이 수업 내용이 실전에서 그대로 쓰이는 대표 사례입니다.</li>
+  <li>범주형(pd.cut 결과) 열로 groupby할 때 <code>observed=True</code>를 주면 실제로 존재하는 그룹만 계산하고 경고를 막습니다.</li>
+</ul></div>
+
+<!-- ───────────── 7장 ───────────── -->
+<h1><span class="no">7</span>시각화</h1>
+<p class="lead">숫자 표는 정확하지만, 그래프는 차이를 한눈에 보여 줍니다. 그래프는 <b>그리는 것보다 읽는 것</b>이 더 중요합니다. 그래프마다 "여기서 무엇을 읽을 수 있나?"를 스스로 물어보세요.</p>
+<table>
+  <tr><th>그래프</th><th>언제 쓰나?</th><th>seaborn 함수</th></tr>
+  <tr><td>막대(개수)</td><td>범주별 개수 비교</td><td><code>sns.countplot</code></td></tr>
+  <tr><td>막대(평균)</td><td>범주별 평균(생존율) 비교</td><td><code>sns.barplot</code></td></tr>
+  <tr><td>히스토그램</td><td>숫자 데이터의 분포</td><td><code>sns.histplot</code></td></tr>
+  <tr><td>상자 그림</td><td>그룹별 분포·이상치 비교</td><td><code>sns.boxplot</code></td></tr>
+  <tr><td>점·선 그래프</td><td>순서가 있는 범주의 변화</td><td><code>sns.pointplot</code></td></tr>
+  <tr><td>히트맵</td><td>여러 변수의 상관관계</td><td><code>sns.heatmap</code></td></tr>
+</table>
+<h2>7-1. 생존자 수 · 성별 · 등급별 생존율</h2>
+<span class="label">예제 7-1</span>
+<pre>fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))     <span class="c"># 그래프 3 개를 나란히</span>
+sns.countplot(data=df, x='Survived', ax=axes[0])     <span class="c"># 개수 막대</span>
+sns.barplot(data=df, x='Sex', y='Survived', errorbar=None, ax=axes[1])   <span class="c"># 평균=생존율</span>
+sns.barplot(data=df, x='Pclass', y='Survived', hue='Sex', errorbar=None, ax=axes[2])
+plt.tight_layout()
+plt.show()</pre>
+<figure><img src="figures/fig7_overview.png"><figcaption>그림 7-1. 생존자 수, 성별 생존율, 객실 등급·성별 생존율</figcaption></figure>
+<h2>7-2. 나이 분포 (히스토그램)</h2>
+<span class="label">예제 7-2</span>
+<pre>sns.histplot(data=df_raw, x='Age', hue='Survived', multiple='stack', bins=30)
+<span class="c"># ※ 결측치를 채우기 전의 원본(df_raw)으로 그려야 실제 나이 분포를 볼 수 있음</span></pre>
+<figure class="s"><img src="figures/fig7_age.png"><figcaption>그림 7-2. 생존 여부별 나이 분포 — 10세 미만은 생존자 비율이 높고, 20~30대는 사망자가 압도적</figcaption></figure>
+<div class="box note"><b>해설 · 왜 df_raw로 그릴까?</b> df로 그리면 그룹 중앙값(21~40세) 위치에 막대가 툭 튀어나옵니다. <b>결측치 처리가 분포를 바꿀 수 있다</b>는 것을 보여 주는 좋은 예입니다. 직접 df로 바꿔 그려 비교해 보세요.</div>
+<h2>7-3. 등급별 요금 분포 (상자 그림)</h2>
+<p>상자 가운데 선 = 중앙값, 상자 위/아래 = 75%/25% 지점, 수염 밖의 점 = 이상치</p>
+<figure class="s"><img src="figures/fig7_fare.png"><figcaption>그림 7-3. 객실 등급별 요금 분포</figcaption></figure>
+<h2>7-4. 가족 수별 생존율</h2>
+<figure class="s"><img src="figures/fig7_family.png"><figcaption>그림 7-4. 가족 수별 생존율 (점선 = 전체 평균 38.4%)</figcaption></figure>
+<h2>7-5. 상관관계 히트맵</h2>
+<p>상관계수는 -1 ~ 1 사이 값입니다. +1에 가까우면 함께 커지고, -1에 가까우면 한쪽이 커질 때 다른 쪽은 작아지며, 0 근처면 별 관계가 없습니다. 성별은 숫자가 아니므로 <code>map({"male": 0, "female": 1})</code>로 바꿔서 계산합니다.</p>
+<figure class="s"><img src="figures/fig7_corr.png" style="max-width:60%"><figcaption>그림 7-5. 변수 간 상관관계</figcaption></figure>
+<p>생존과 가장 관련이 큰 변수: <b>성별(+0.54) &gt; 객실 등급(-0.34) &gt; 객실 정보 유무(+0.32) &gt; 요금(+0.26)</b></p>
+<div class="box warn"><b>주의</b>
+<ul>
+  <li>Pclass의 1·2·3은 크기가 아니라 등급이라 해석에 주의하세요. 음수 = 등급 숫자가 작을수록(좋은 등급일수록) 생존.</li>
+  <li>.py로 실행하면 <code>plt.show()</code>에서 그래프 창이 뜨고, 창을 닫아야 다음 코드가 실행됩니다.</li>
+  <li>한글이 □□□로 나오면 1-2 셀(폰트 설정)을 다시 실행하세요.</li>
+</ul></div>
+
+<!-- ───────────── 8장 ───────────── -->
+<h1><span class="no">8</span>발견한 사실 &amp; 간단한 생존 예측</h1>
+<h2>8-1. 지금까지 발견한 사실</h2>
+<table>
+  <tr><th>요인</th><th>발견한 사실</th></tr>
+  <tr><td>성별</td><td>여성 생존율(74%)이 남성(19%)보다 압도적으로 높다 → 가장 강력한 요인</td></tr>
+  <tr><td>객실 등급</td><td>1등석(63%) &gt; 2등석(47%) &gt; 3등석(24%). 높은 등급일수록 생존율이 높다</td></tr>
+  <tr><td>나이</td><td>어린이(특히 Master 호칭의 남자아이)는 생존율이 높았다</td></tr>
+  <tr><td>가족 수</td><td>2~4인 가족이 가장 높고, 혼자이거나 5인 이상이면 낮았다</td></tr>
+  <tr><td>탑승 항구</td><td>C 항구 생존율이 높았지만, 1등석 비율이 높았기 때문이다 (상관 ≠ 인과)</td></tr>
+</table>
+<p>이 표는 "무엇이 관련 있었나"라는 <b>사실</b>입니다. 이 사실들이 서로 어떻게 얽혀 있고 무엇을 의미하는지는 10장 <b>인사이트</b>에서 한 단계 더 깊이 들어갑니다.</p>
+<h2>8-2. 우리가 찾은 규칙으로 생존 예측하기</h2>
+<p>머신러닝 없이, 분석에서 찾은 규칙만으로 생존 여부를 맞혀 봅니다. <b>정확도 = 예측이 맞은 승객 수 ÷ 전체 승객 수</b>입니다.</p>
+<span class="label">예제 8-1 ~ 8-3</span>
+<pre>y = df['Survived'].values                                   <span class="c"># 실제 정답 (넘파이 배열)</span>
+
+<span class="c"># 규칙 0 : 모두 사망했다고 예측</span>
+pred0 = np.zeros(len(df), dtype=int)
+(pred0 == y).mean()                                         <span class="c"># 맞힌 비율 → 61.6%</span>
+
+<span class="c"># 규칙 1 : 여성은 생존, 남성은 사망</span>
+pred1 = np.where(df['Sex'] == 'female', 1, 0)
+(pred1 == y).mean()                                         <span class="c"># 78.7%</span>
+
+<span class="c"># 규칙 2 : 규칙 1 + 예외 (3 등석 대가족 여성은 사망, 1·2 등석 남자아이는 생존)</span>
+is_female      = df['Sex'] == 'female'
+is_poor_bigfam = (df['Pclass'] == 3) &amp; (df['FamilySize'] &gt;= 5)
+is_rich_boy    = (df['Title'] == 'Master') &amp; (df['Pclass'] &lt;= 2)
+pred2 = np.where((is_female &amp; ~is_poor_bigfam) | is_rich_boy, 1, 0)
+(pred2 == y).mean()                                         <span class="c"># 82.4%</span></pre>
+<div class="box warn"><b>주의</b> 여러 조건은 <code>&amp;</code>(그리고), <code>|</code>(또는), <code>~</code>(아니다)로 연결하고, 조건마다 괄호( )를 꼭 쳐야 합니다. 파이썬의 <code>and</code>, <code>or</code>는 판다스/넘파이 배열에 쓸 수 없습니다.</div>
+<figure class="s"><img src="figures/fig8_rules.png"><figcaption>그림 8-1. 생존 예측 규칙별 정확도</figcaption></figure>
+<div class="box key"><b>핵심 정리</b>
+<ul>
+  <li>단순한 규칙만으로도 약 82%의 정확도를 얻었습니다.</li>
+  <li>데이터에서 패턴을 찾아 규칙을 만드는 과정을 컴퓨터가 자동으로 하게 만든 것이 바로 <b>머신러닝</b>입니다. (다음 단계: scikit-learn의 결정 트리, 로지스틱 회귀)</li>
+</ul></div>
+<div class="box note"><b>해설</b>
+<ul>
+  <li>"규칙 0(모두 사망)도 61.6%나 맞힌다"는 점이 중요합니다. 정확도는 <b>기준선(baseline)</b>과 비교해야 의미가 있습니다.</li>
+  <li>이 정확도는 규칙을 만든 같은 데이터로 평가한 것이라 실제보다 높게 나옵니다 → 11장 조언 ⑤ "검증"에서 자세히 다룹니다.</li>
+  <li>실습문제 15번(나만의 규칙)으로 정확도 경쟁을 해 보세요.</li>
+</ul></div>
+
+<!-- ───────────── 9장 ───────────── -->
+<h1><span class="no">9</span>오늘 배운 내용 정리</h1>
+<table>
+  <tr><th>하고 싶은 일</th><th>판다스 / 넘파이 코드</th></tr>
+  <tr><td>CSV 불러오기</td><td><code>pd.read_csv('파일.csv')</code></td></tr>
+  <tr><td>크기 · 구조 보기</td><td><code>df.shape, df.info(), df.head()</code></td></tr>
+  <tr><td>요약 통계</td><td><code>df.describe()</code></td></tr>
+  <tr><td>결측치 개수</td><td><code>df.isnull().sum()</code></td></tr>
+  <tr><td>결측치 채우기</td><td><code>df['열'] = df['열'].fillna(값)</code></td></tr>
+  <tr><td>그룹별 값으로 채우기</td><td><code>df.groupby('그룹')['열'].transform('median')</code></td></tr>
+  <tr><td>열 삭제</td><td><code>df.drop(columns=['열'])</code></td></tr>
+  <tr><td>값별 개수</td><td><code>df['열'].value_counts()</code></td></tr>
+  <tr><td>그룹별 생존율</td><td><code>df.groupby('열')['Survived'].mean()</code></td></tr>
+  <tr><td>교차 분석</td><td><code>pd.pivot_table(...), pd.crosstab(...)</code></td></tr>
+  <tr><td>조건으로 값 만들기</td><td><code>np.where(조건, 참값, 거짓값)</code></td></tr>
+  <tr><td>구간 나누기</td><td><code>pd.cut(...), pd.qcut(...)</code></td></tr>
+  <tr><td>문자열 추출</td><td><code>df['열'].str.extract(정규식)</code></td></tr>
+  <tr><td>그래프</td><td><code>sns.countplot, barplot, histplot, boxplot, heatmap</code></td></tr>
+  <tr><td>파일로 저장</td><td><code>df.to_csv('파일.csv', index=False, encoding='utf-8-sig')</code></td></tr>
+</table>
+<h2>자주 만나는 오류와 해결 방법</h2>
+<table>
+  <tr><th>증상 / 오류 메시지</th><th>원인</th><th>해결</th></tr>
+  <tr><td>HTTPError: 404</td><td>URL 오타, 또는 깃허브에 파일이 없음</td><td>raw 주소와 파일 이름(titanic_kaggle.csv) 확인</td></tr>
+  <tr><td>KeyError: 'Embarked' (읽은 직후)</td><td>seaborn 버전 titanic.csv를 읽음 (열 이름 소문자)</td><td>Kaggle 원본 titanic_kaggle.csv 주소로 바꾸기</td></tr>
+  <tr><td>FileNotFoundError</td><td>로컬 파일 사용 시 CSV가 작업 폴더에 없음</td><td>CSV를 노트북과 같은 폴더로 옮기기</td></tr>
+  <tr><td>ModuleNotFoundError</td><td>패키지 미설치</td><td><code>pip install pandas numpy matplotlib seaborn</code></td></tr>
+  <tr><td>그래프 한글이 □□□</td><td>한글 폰트 미설정</td><td>1-2 폰트 설정 셀 다시 실행</td></tr>
+  <tr><td>fillna를 했는데 값이 그대로</td><td>결과를 대입하지 않음</td><td><code>df['열'] = df['열'].fillna(값)</code></td></tr>
+  <tr><td>KeyError: 'age'</td><td>열 이름 오타 (대소문자 구분!)</td><td>'Age'처럼 정확히 입력</td></tr>
+  <tr><td>ValueError: The truth value of a Series is ambiguous</td><td>조건에 and / or 사용</td><td><code>&amp;</code>, <code>|</code>와 괄호 사용</td></tr>
+</table>
+<div class="box key"><b>다음 할 일</b> <code>04_실습문제_타이타닉</code>의 15문제를 풀어 보세요. 문제마다 힌트와 참고할 장 번호, 확인용 정답 값이 적혀 있고, 모범 답안은 부록 A에 있습니다.</div>
+
+<!-- ───────────── 10장 인사이트 ───────────── -->
+<h1><span class="no">10</span>타이타닉 데이터가 알려 준 인사이트 5가지</h1>
+<p class="lead"><b>사실</b>은 "여성 생존율 74%"처럼 숫자 그 자체이고, <b>인사이트</b>는 여러 사실을 엮어 "그래서 무엇을 뜻하는가"를 말하는 것입니다. 아래 다섯 가지는 지금까지 배운 groupby·pivot_table·crosstab만으로 찾을 수 있습니다. 숫자는 모두 891명 전체 데이터(교안 3장 방식으로 결측치 처리) 기준입니다.</p>
+
+<div class="insight">
+<h2><span class="num">①</span> 성별은 등급보다 강했다 — "누구인가"가 "얼마를 냈는가"를 이겼다</h2>
+<figure><img src="figures/ins1_sex_class.png" style="max-width:80%"></figure>
+<p>1등석 남성의 생존율은 <b>36.9%</b>, 3등석 여성은 <b>50.0%</b>입니다. 가장 비싼 표를 산 남성보다 가장 싼 표를 산 여성이 더 많이 살았습니다. 같은 등급 안에서 남녀 차이는 37~76%p인데, 같은 성별 안에서 1·3등석 차이는 23~47%p입니다. 상관계수도 성별(+0.54)이 등급(-0.34)보다 큽니다.</p>
+<div class="so"><b>그래서?</b> 생존을 가른 1순위 규칙은 "여성 먼저"라는 사회적 규범이었고, 돈(등급)은 그 규칙 안에서 두 번째로 작동했습니다. 예측 규칙 1(여성 = 생존)이 단 한 줄로 78.7%를 맞힌 이유입니다.</div>
+<p><b>배운 기술</b> : <code>pivot_table(index='Sex', columns='Pclass')</code> — 두 변수를 함께 놓아야 어느 쪽이 더 센지 보입니다.</p>
+</div>
+
+<div class="insight">
+<h2><span class="num">②</span> "여성과 어린이 먼저"에도 등급의 벽이 있었다</h2>
+<figure><img src="figures/ins2_children.png" style="max-width:80%"></figure>
+<p>1·2등석 남자아이(Master)는 <b>12명 전원(100%)</b> 살아남았지만, 3등석 남자아이는 28명 중 11명(<b>39.3%</b>)만 살았습니다. 여성도 1·2등석은 92~97%였지만 3등석은 50%에 그쳤습니다. 규범은 모두에게 똑같이 적용되지 않았습니다.</p>
+<div class="so"><b>그래서?</b> 전체 평균("Master 생존율 57.5%")은 서로 전혀 다른 두 집단(100% vs 39%)을 섞어 놓은 숫자였습니다. <b>평균 하나로 집단을 설명하면 그 안의 불평등이 지워집니다.</b> 3등석 객실은 배 아래쪽에 있어 갑판까지 거리가 멀었고, 구명보트에 접근할 기회 자체가 적었던 것으로 해석할 수 있습니다.</div>
+<p><b>배운 기술</b> : <code>str.extract</code>로 만든 Title 파생 변수 + <code>groupby</code> — 파생 변수가 없었다면 "남자아이"라는 집단 자체를 볼 수 없었습니다.</p>
+</div>
+
+<div class="insight">
+<h2><span class="num">③</span> 가족은 2~4명일 때 가장 유리했고, 대가족의 비극은 3등석에 몰려 있었다</h2>
+<figure><img src="figures/ins3_family.png"></figure>
+<p>혼자 탄 승객 30.4%, 2~4명 가족 57.9%, 5명 이상 대가족 16.1%로 <b>역U자</b> 모양입니다. 그런데 5명 이상 대가족 62명 중 <b>54명(87%)이 3등석</b>이었고, 이들의 생존율은 <b>7.4%</b>에 불과했습니다.</p>
+<div class="so"><b>그래서?</b> 작은 가족은 서로 챙기며 함께 보트로 이동할 수 있었지만, 대가족은 흩어진 가족을 모두 찾다가 탈출 시간을 놓쳤을 가능성이 큽니다. 그리고 "대가족이라 위험했다"의 상당 부분은 "3등석이라 위험했다"와 겹칩니다. 숫자 하나(FamilySize)가 실제로는 두 가지 이야기(가족 규모 + 등급)를 함께 담고 있습니다.</div>
+<p><b>배운 기술</b> : <code>pd.cut</code>으로 구간 만들기 + <code>pivot_table</code>로 등급과 교차 — 관계가 직선이 아닐 때는 구간으로 나눠 보세요.</p>
+</div>
+
+<div class="insight">
+<h2><span class="num">④</span> 항구가 사람을 살린 것이 아니다 — 교란 변수 찾기</h2>
+<figure><img src="figures/ins4_port.png"></figure>
+<p>C(셰르부르) 승객의 생존율은 55.4%로 S(사우샘프턴) 33.9%보다 높습니다. 그런데 C 승객은 <b>51%가 1등석, 43%가 여성</b>이었고, S 승객은 1등석 20%, 여성 32%였습니다. 즉 C 항구의 높은 생존율은 대부분 "누가 탔는가"의 차이입니다. 등급을 고정하고 보면 차이가 크게 줄어듭니다. 다만 등급을 고정해도 C가 조금 더 높은 부분(예: 3등석 38% vs 19%)은 성별 구성 차이와 작은 표본(C 2등석은 17명뿐)이 섞인 결과라, 단정할 수 없습니다.</p>
+<div class="so"><b>그래서?</b> "C 항구에서 타면 산다"는 틀린 결론입니다. 두 변수가 함께 움직일 때는 <b>둘 다에 영향을 주는 제3의 변수(교란 변수)</b>가 있는지 먼저 의심해야 합니다. 그리고 집단을 잘게 나눌수록 각 칸의 인원 수(n)를 꼭 함께 확인해야 합니다.</div>
+<p><b>배운 기술</b> : <code>crosstab(normalize='index')</code>로 구성 비율 보기 + <code>pivot_table</code>로 조건 고정하기</p>
+</div>
+
+<div class="insight">
+<h2><span class="num">⑤</span> 빈 값도 정보다 — 기록이 남은 사람과 남지 않은 사람</h2>
+<figure><img src="figures/ins5_missing.png"></figure>
+<p>객실 번호(Cabin)가 기록된 승객은 생존율 66.7%, 기록이 없는 승객은 30.0%입니다. 하지만 이것은 객실 번호가 사람을 살린 것이 아닙니다. 1등석은 <b>81%</b>가 객실 번호가 기록됐지만 3등석은 <b>2.4%</b>뿐입니다. 나이(Age)도 마찬가지로, 나이 기록이 없는 승객의 생존율(29.4%)이 있는 승객(40.6%)보다 낮은데, 나이 기록이 없는 177명 중 <b>136명(77%)이 3등석</b>입니다.</p>
+<div class="so"><b>그래서?</b> 결측치는 무작위로 생기지 않습니다. <b>"누구의 정보가 기록되었는가" 자체가 그 사람의 사회적 위치를 보여 줍니다.</b> 그래서 결측치를 무작정 지우면(dropna) 3등석 승객이 집중적으로 빠져 결과가 1등석 쪽으로 기울고, HasCabin처럼 "비어 있음"을 하나의 변수로 만들면 오히려 예측에 도움이 됩니다.</div>
+<p><b>배운 기술</b> : <code>isnull()</code>로 결측 여부를 0/1 변수로 만들고 → <code>groupby</code>로 결측 집단의 특징 비교</p>
+</div>
+
+<div class="box key"><b>다섯 인사이트를 한 문장으로</b> 타이타닉의 생존은 운이 아니라 <b>"성별 → 등급 → 나이·가족 구성"</b> 순서의 구조를 따랐고, 겉으로 보이는 다른 요인(항구, 객실 기록)의 상당 부분은 이 구조가 다른 모습으로 드러난 것이었습니다.</div>
+
+<!-- ───────────── 11장 조언 ───────────── -->
+<h1><span class="no">11</span>데이터 분석, 이렇게 하세요 — 타이타닉에서 배운 7가지 조언</h1>
+<p class="lead">문법은 검색하면 나오지만, <b>분석하는 태도와 순서</b>는 직접 해 봐야 몸에 남습니다. 오늘 타이타닉 분석에서 실제로 겪은 장면을 바탕으로, 다른 어떤 데이터를 만나도 써먹을 수 있는 방법을 정리합니다.</p>
+
+<div class="advice-step"><div class="n">1</div><div>
+<h3>코드보다 질문을 먼저 쓰세요</h3>
+<p>이 수업은 "누가 살아남았고, 왜?"라는 질문 하나로 시작했습니다. 질문이 있어야 어떤 열을 보고 어떤 그래프를 그릴지 정해집니다. 질문 없이 <code>describe()</code>부터 돌리면 숫자는 많아지는데 결론이 없습니다.</p>
+<p><b>실천</b> : 노트북 첫 셀에 질문 2~3개를 적어 두고, 분석이 끝나면 그 질문에 한 문장씩 답하세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">2</div><div>
+<h3>데이터를 믿기 전에 먼저 의심하세요</h3>
+<p><code>shape → head → info → describe</code> 네 가지는 매번 확인합니다. 그 덕분에 Age가 714개뿐이라는 것, Fare의 평균(32)이 중앙값(14)보다 훨씬 크다는 것, seaborn 버전 파일은 열 이름이 다르다는 것을 일찍 발견했습니다. 원본은 <code>df_raw = df.copy()</code>로 보관하세요.</p>
+<p><b>실천</b> : 분석 전에 "이 데이터는 누가, 언제, 어떻게 모았나? 무엇이 빠져 있나?"를 한 줄로 적어 보세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">3</div><div>
+<h3>결측치는 "어떻게 채울까"보다 "왜 비었을까"를 먼저 물으세요</h3>
+<p>Cabin은 77%가 비어 있어 채우지 않고 HasCabin으로 바꿨고, Age는 등급·성별 그룹 중앙값으로 채웠고, Embarked는 2개라 최빈값으로 채웠습니다. 같은 "빈 값"이라도 처리 방법이 모두 달랐습니다. 그리고 인사이트 ⑤처럼 비어 있다는 사실 자체가 3등석이라는 신호였습니다.</p>
+<p><b>실천</b> : 결측치를 처리하기 전에 <code>df.groupby(df['열'].isnull())['타깃'].mean()</code>으로 "빈 집단"과 "찬 집단"이 다른지 확인하세요. 처리 후에는 7-2처럼 분포가 왜곡되지 않았는지 그래프로 확인하세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">4</div><div>
+<h3>한 변수로 결론 내리지 말고, 반드시 쪼개 보세요</h3>
+<p>"C 항구 생존율이 높다"는 한 변수 분석의 결론은 등급으로 쪼개자 대부분 사라졌습니다(인사이트 ④). "Master 생존율 57.5%"도 등급으로 쪼개자 100%와 39%로 갈라졌습니다(인사이트 ②). 평균은 서로 다른 집단을 섞어 버립니다.</p>
+<p><b>실천</b> : 흥미로운 차이를 발견하면 곧바로 "<b>이것을 등급(또는 성별, 나이대)으로 나눠도 그대로일까?</b>"를 <code>pivot_table</code>로 확인하세요. 칸마다 인원 수(<code>aggfunc='count'</code>)도 같이 보고, 20명 미만인 칸의 숫자는 조심해서 말하세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">5</div><div>
+<h3>기준선과 비교하고, 안 본 데이터로 검증하세요</h3>
+<p>"모두 사망" 규칙도 61.6%를 맞힙니다. 그러니 82%라는 숫자는 기준선보다 약 21%p 나아졌다는 뜻으로 읽어야 합니다. 또 규칙을 만든 데이터로 채점하면 점수가 부풀려집니다. 아래 그림은 결정 트리를 점점 복잡하게 만들었을 때입니다. 깊이 제한이 없는 트리는 <b>본 데이터에서 98%</b>를 맞히지만, <b>안 본 데이터에서는 78.7%</b>로 단순한 "여성 = 생존" 규칙(78.7%)과 같은 수준입니다. 외워서 푼 것이지 이해한 것이 아닙니다.</p>
+<figure><img src="figures/adv_overfit.png" style="max-width:78%"><figcaption>그림 11-1. 결정 트리 깊이별 훈련 정확도 vs 5-fold 교차검증 정확도 (특성: 성별·등급·가족 수·나이·요금)</figcaption></figure>
+<p><b>실천</b> : 모든 결과에 "무엇과 비교해서?"를 붙이세요. 예측을 한다면 데이터를 훈련/검증으로 나누고(<code>train_test_split</code>, <code>cross_val_score</code>), 단순한 모델이 비슷한 성능이면 단순한 쪽을 고르세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">6</div><div>
+<h3>상관관계를 인과관계로 말하지 마세요</h3>
+<p>객실 번호가 기록된 사람이 많이 살았다고 해서 "객실 번호를 기록하면 산다"가 아닙니다. 데이터는 "함께 움직였다"까지만 말해 줍니다. "왜"는 도메인 지식(배의 구조, 당시 구조 원칙)으로 설명하되, 그것이 <b>해석(가설)</b>임을 분명히 하세요.</p>
+<p><b>실천</b> : 보고서에서 "~때문이다" 대신 "~와 관련이 있다", "~로 해석할 수 있다"를 쓰고, 다른 설명(교란 변수)이 가능한지 한 줄 덧붙이세요.</p>
+</div></div>
+
+<div class="advice-step"><div class="n">7</div><div>
+<h3>결과는 숫자가 아니라 "그래서?"로 전달하세요</h3>
+<p>"female 0.742, male 0.189"는 결과이고, "3등석 여성이 1등석 남성보다 많이 살았다 — 성별이 등급보다 강했다"는 인사이트입니다. 그래프는 한 장에 메시지 하나만 담고, 제목에 그 메시지를 쓰세요(10장 그래프 제목들처럼). 같은 의미에는 같은 색을 쓰고(이 교안은 생존=파랑, 사망=주황), 퍼센트에는 인원 수를 함께 표시하세요.</p>
+<p><b>실천</b> : 모든 그래프 아래에 "이 그래프가 말하는 것"을 한 문장으로 적어 보세요. 한 문장으로 안 써지면 그래프를 다시 그려야 한다는 신호입니다.</p>
+</div></div>
+
+<div class="box key avoid"><b>분석 흐름 체크리스트 — 새 데이터를 만날 때마다</b>
+<table style="margin:4pt 0 0; background:#fff">
+  <tr><th>단계</th><th>스스로 던질 질문</th></tr>
+  <tr><td>질문</td><td>무엇을 알고 싶은가? 결과를 누가 어디에 쓰는가?</td></tr>
+  <tr><td>살펴보기</td><td>몇 행·몇 열? 자료형은 맞나? 이상한 값(0원, 512원)은 없나?</td></tr>
+  <tr><td>정제</td><td>왜 비었나? 채울까, 지울까, 변수로 만들까? 처리 후 분포는 그대로인가?</td></tr>
+  <tr><td>탐색</td><td>한 변수씩 → 두 변수 조합으로. 이 차이는 다른 변수로 나눠도 유지되나? 각 칸의 n은?</td></tr>
+  <tr><td>검증</td><td>기준선보다 나은가? 안 본 데이터에서도 통하나?</td></tr>
+  <tr><td>전달</td><td>"그래서?"를 한 문장으로 말할 수 있나? 인과처럼 말하고 있지 않나?</td></tr>
+</table></div>
+
+<!-- ───────────── 부록 A ───────────── -->
+<h1><span class="no">A</span>부록 A. 실습문제 정답</h1>
+<p class="lead"><code>04_실습문제_타이타닉</code>의 모범 답안입니다. <b>먼저 직접 풀어 본 뒤 확인하세요.</b> 다른 방법으로 풀어도 결과가 같으면 정답입니다. 모든 정답은 원본 데이터를 새로 불러와서(<code>data = pd.read_csv(DATA_URL)</code>) 문제 순서대로 풀었을 때의 결과입니다.</p>
+<h2>기초 (1 ~ 5)</h2>
+<h3>문제 1. 데이터 불러오기</h3>
+<pre>data = pd.read_csv(DATA_URL)
+data.head(10)</pre>
+<p>결과 : 상위 10행 출력</p>
+<h3>문제 2. 데이터 크기</h3>
+<pre>print('행 개수 :', data.shape[0])
+print('열 개수 :', data.shape[1])</pre>
+<p>결과 : 행 891, 열 12</p>
+<h3>문제 3. 결측치 확인</h3>
+<pre>pd.DataFrame({'결측치 수': data.isnull().sum(),
+              '비율(%)': (data.isnull().mean() * 100).round(1)})</pre>
+<p>결과 : Age 177(19.9%), Cabin 687(77.1%), Embarked 2(0.2%)</p>
+<h3>문제 4. 전체 생존 현황</h3>
+<pre>print('생존자 수 :', data['Survived'].sum())
+print(f"생존율 : {data['Survived'].mean():.1%}")</pre>
+<p>결과 : 생존자 342명, 생존율 38.4%</p>
+<h3>문제 5. 나이 기초 통계</h3>
+<pre>data['Age'].mean(), data['Age'].max(), data['Age'].min()</pre>
+<p>결과 : 평균 29.7세, 최고령 80세, 최연소 0.42세 (생후 약 5개월 → 1세 미만은 소수로 기록)</p>
+<h2>중급 (6 ~ 11)</h2>
+<h3>문제 6. 성별 분석</h3>
+<pre>data.groupby('Sex')['Survived'].agg(['count', 'mean'])</pre>
+<p>결과 : female 314명 74.2%, male 577명 18.9%</p>
+<h3>문제 7. 객실 등급별 요금</h3>
+<pre>data.groupby('Pclass')['Fare'].mean().round(2)</pre>
+<p>결과 : 1등석 84.15, 2등석 20.66, 3등석 13.68 → 1등석이 3등석의 약 6.2배</p>
+<h3>문제 8. 결측치 채우기</h3>
+<pre>data['Age'] = data['Age'].fillna(data.groupby('Sex')['Age'].transform('median'))
+data['Age'].isnull().sum()   <span class="c"># 0</span></pre>
+<p>결과 : Age 결측치 0개</p>
+<h3>문제 9. 조건 필터링</h3>
+<pre>data[data['Age'] &lt; 10]['Survived'].mean()    <span class="c"># 10 세 미만</span>
+data[data['Age'] &gt;= 10]['Survived'].mean()   <span class="c"># 10 세 이상</span></pre>
+<p>결과 : 10세 미만 61.3%, 10세 이상 36.7%</p>
+<h3>문제 10. 피벗 테이블</h3>
+<pre>pd.pivot_table(data, index='Sex', columns='Pclass', values='Survived', aggfunc='mean')</pre>
+<p>결과 : 최고: 1등석 여성 96.8%, 최저: 3등석 남성 13.5%</p>
+<h3>문제 11. 정렬</h3>
+<pre>data.groupby('Embarked')['Survived'].mean().sort_values(ascending=False)</pre>
+<p>결과 : C 55.4% &gt; Q 39.0% &gt; S 33.7% (원본 기준이라 본문의 33.9%와 조금 다름 — 결측치 2개를 S로 채우지 않았기 때문)</p>
+<h2>도전 (12 ~ 15)</h2>
+<h3>문제 12. 가족 수</h3>
+<pre>data['FamilySize'] = data['SibSp'] + data['Parch'] + 1
+fam = data.groupby('FamilySize')['Survived'].mean()
+fam.idxmax()   <span class="c"># 가장 큰 값의 인덱스</span></pre>
+<p>결과 : 4명 (생존율 72.4%)</p>
+<h3>문제 13. 호칭 추출</h3>
+<pre>data['Title'] = data['Name'].str.extract(r',\s*([^\.]+)\.', expand=False)
+t = data.groupby('Title')['Survived'].agg(['count', 'mean'])
+t[t['count'] &gt;= 5].sort_values('mean', ascending=False)</pre>
+<p>결과 : Mrs 79.2% &gt; Miss 69.8% &gt; Master 57.5% &gt; Dr 42.9% &gt; Mr 15.7% &gt; Rev 0%</p>
+<h3>문제 14. 시각화</h3>
+<pre>sns.barplot(data=data, x='Pclass', y='Survived', errorbar=None)
+plt.title('객실 등급별 생존율'); plt.xlabel('객실 등급'); plt.ylabel('생존율')
+plt.show()</pre>
+<p>결과 : 1등석 &gt; 2등석 &gt; 3등석 순의 막대그래프. <code>hue="Sex"</code>를 주면 성별로 나뉜 막대가 그려짐</p>
+<h3>문제 15. 나만의 규칙 (예시)</h3>
+<pre>my_rule = (((data['Sex'] == 'female') &amp; ~((data['Pclass'] == 3) &amp; (data['FamilySize'] &gt;= 5)))
+           | ((data['Age'] &lt; 10) &amp; (data['Pclass'] &lt;= 2)))
+my_pred = np.where(my_rule, 1, 0)
+(my_pred == data['Survived'].values).mean()</pre>
+<p>결과 : 82.3% (예시 답안. 78.7%를 넘기면 성공)</p>
+
+<!-- ───────────── 부록 B ───────────── -->
+<h1><span class="no">B</span>부록 B. 자주 묻는 질문</h1>
+<table>
+  <tr><th style="width:32%">질문</th><th>답변</th></tr>
+  <tr><td>결측치는 항상 채워야 하나요?</td><td>아닙니다. 비율, 중요도, 결측의 이유를 보고 판단합니다. Cabin처럼 너무 많이 비면 삭제하거나 "있음/없음" 정보만 남깁니다.</td></tr>
+  <tr><td>평균과 중앙값 중 무엇으로 채우나요?</td><td>이상치가 있거나 분포가 치우치면 중앙값, 대칭이면 평균도 괜찮습니다. 확실하지 않으면 중앙값이 안전합니다.</td></tr>
+  <tr><td>groupby에 왜 <code>observed=True</code>를 주나요?</td><td>pd.cut으로 만든 범주형 열은 데이터에 없는 범주까지 결과에 나올 수 있어서, 실제로 있는 그룹만 계산하도록 하는 옵션입니다.</td></tr>
+  <tr><td>barplot 막대 위의 검은 선은 뭔가요?</td><td>신뢰구간(오차 막대)입니다. 수업에서는 <code>errorbar=None</code>으로 숨겼습니다.</td></tr>
+  <tr><td>82%면 좋은 모델인가요?</td><td>기준선(61.6%)보다 높으니 의미는 있지만, 같은 데이터로 평가해서 낙관적인 값입니다. 11장 조언 ⑤처럼 훈련/검증을 나눠 평가해야 합니다.</td></tr>
+  <tr><td><code>inplace=True</code>는 왜 쓰면 안 되나요?</td><td>판다스 3부터 Copy-on-Write가 기본이라 <code>df["열"].fillna(..., inplace=True)</code>는 원본을 바꾸지 않습니다. 대입 방식이 가장 확실합니다.</td></tr>
+  <tr><td>사실과 인사이트는 어떻게 다른가요?</td><td>사실은 "여성 생존율 74%", 인사이트는 "3등석 여성이 1등석 남성보다 많이 살았다 → 성별이 등급보다 강한 요인"처럼 여러 사실을 엮어 의미를 말하는 것입니다(10장).</td></tr>
+  <tr><td>이 교안 PDF는 어떻게 다시 만드나요?</td><td>저장소 루트에서 <code>python handout_src/build.py</code>를 실행하면 그림을 다시 그리고 크롬/엣지로 PDF를 인쇄합니다. 본문은 <code>handout_src/handout.html</code>에서 고칩니다.</td></tr>
+</table>
+
+</body>
+</html>
