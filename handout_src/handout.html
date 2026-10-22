@@ -156,9 +156,7 @@
   <tr><th>파일</th><th>설명</th></tr>
   <tr><td>titanic_kaggle.csv</td><td>분석할 데이터(Kaggle 원본). 예제는 깃허브에서 바로 내려받으므로, 인터넷이 안 될 때만 예제와 같은 폴더에 두고 사용</td></tr>
   <tr><td>03_예제_타이타닉_데이터분석 .ipynb / .py</td><td>교안 1~9장 코드가 같은 번호 순서로 들어 있는 예제. 주석이 자세히 달려 있음</td></tr>
-  <tr><td>04_실습문제_타이타닉 .ipynb / .py</td><td>15개 실습 문제 (기초 5 · 중급 6 · 도전 4). 정답은 부록 A</td></tr>
-  <tr><td>handout_src/</td><td>이 교안 PDF를 만드는 소스 (build.py, handout.html, 그림)</td></tr>
-</table>
+  <tr><td>04_실습문제_타이타닉 .ipynb / .py</td><td>15개 실습 문제 (기초 5 · 중급 6 · 도전 4). 정답은 부록 A</td></tr></table>
 <div class="box key"><b>공부하는 방법</b>
 <ul>
   <li>교안에서 개념을 읽고 → 예제 코드에서 같은 번호의 셀을 실행하고 → 결과를 교안의 표·그래프와 비교하세요.</li>
@@ -802,9 +800,7 @@ my_pred = np.where(my_rule, 1, 0)
   <tr><td>barplot 막대 위의 검은 선은 뭔가요?</td><td>신뢰구간(오차 막대)입니다. 수업에서는 <code>errorbar=None</code>으로 숨겼습니다.</td></tr>
   <tr><td>82%면 좋은 모델인가요?</td><td>기준선(61.6%)보다 높으니 의미는 있지만, 같은 데이터로 평가해서 낙관적인 값입니다. 11장 조언 ⑤처럼 훈련/검증을 나눠 평가해야 합니다.</td></tr>
   <tr><td><code>inplace=True</code>는 왜 쓰면 안 되나요?</td><td>판다스 3부터 Copy-on-Write가 기본이라 <code>df["열"].fillna(..., inplace=True)</code>는 원본을 바꾸지 않습니다. 대입 방식이 가장 확실합니다.</td></tr>
-  <tr><td>사실과 인사이트는 어떻게 다른가요?</td><td>사실은 "여성 생존율 74%", 인사이트는 "3등석 여성이 1등석 남성보다 많이 살았다 → 성별이 등급보다 강한 요인"처럼 여러 사실을 엮어 의미를 말하는 것입니다(10장).</td></tr>
-  <tr><td>이 교안 PDF는 어떻게 다시 만드나요?</td><td>저장소 루트에서 <code>python handout_src/build.py</code>를 실행하면 그림을 다시 그리고 크롬/엣지로 PDF를 인쇄합니다. 본문은 <code>handout_src/handout.html</code>에서 고칩니다.</td></tr>
-</table>
+  <tr><td>사실과 인사이트는 어떻게 다른가요?</td><td>사실은 "여성 생존율 74%", 인사이트는 "3등석 여성이 1등석 남성보다 많이 살았다 → 성별이 등급보다 강한 요인"처럼 여러 사실을 엮어 의미를 말하는 것입니다(10장).</td></tr></table>
 
 </body>
 </html>
